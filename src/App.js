@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import useHttp from "./hooks/use-http";
 import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  let { sendRequest, isLoading, error } = useHttp(
-    {
-      url: "https://react-http-bb182-default-rtdb.firebaseio.com/tasks.json",
-    },
-    (data) => {
-      const downLoadedTasks = [];
-      for (let key in data) {
-        downLoadedTasks.push({ id: key, text: data[key].text });
-      }
-      setTasks(downLoadedTasks);
+  const transformData = useCallback((data) => {
+    const downLoadedTasks = [];
+    for (let key in data) {
+      downLoadedTasks.push({ id: key, text: data[key].text });
     }
-  );
+    setTasks(downLoadedTasks);
+  }, []);
+
+  const { sendRequest, isLoading, error } = useHttp(transformData);
 
   useEffect(() => {
-    sendRequest();
-  }, []);
+    sendRequest({
+      url: "https://react-http-bb182-default-rtdb.firebaseio.com/tasks.json",
+    });
+  }, [sendRequest]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
