@@ -1,9 +1,8 @@
-import { useState } from "react";
 import useHttp from "../../hooks/use-http";
 import Section from "../UI/Section";
 import TaskForm from "./TaskForm";
 
-const NewTask = (props) => {
+const NewTask = ({ onAddTask }) => {
   const { sendRequest, isLoading, error } = useHttp();
 
   const enterTaskHandler = (text) => {
@@ -13,15 +12,18 @@ const NewTask = (props) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: text,
+      body: { text },
     };
-    const dataTransformer = (data = {});
+    const dataTransformer = (data) => {
+      const generatedId = data.name;
+      const createdTask = {
+        id: generatedId,
+        text,
+      };
+      onAddTask(createdTask);
+    };
     sendRequest(requestConfig, dataTransformer);
   };
-  // const generatedId = data.name; // firebase-specific => "name" contains generated id
-  //const createdTask = { id: generatedId, text: taskText };
-
-  //props.onAddTask(createdTask);
 
   return (
     <Section>
